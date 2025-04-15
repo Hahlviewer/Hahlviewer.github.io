@@ -5,7 +5,7 @@
   <title>Vorlesungskalender</title>
   <style>
     :root {
-      --bg: #f4f4f4;
+      --bg: #ebebeb;
       --fg: #000;
       --lv_fg: #fff;
       --highlighted_fg: #000;
@@ -126,12 +126,33 @@
       color: var(--fg)
     }
 
+
+
+    footer {
+      text-align: center;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
     button {
-      padding: 5px 10px;
-      font-size: 1em;
-      background-color: var(--bg);
+      border: none;
       color: var(--fg);
-      border-color: var(--border);
+      background-color: var(--overlay_bg);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      background-color: var(--highlighted_bg);
+    }
+
+    button:active {
+      transform: scale(0.95);
     }
 
     #fileInput {
@@ -157,6 +178,10 @@
 
   <div class="kalender" id="kalender"></div>
   <div class="legende" id="legende"></div>
+
+  <footer class="text">
+    ©2025 <a href="https://github.com/programmer-44">E44</a>
+  </footer>
 
   <script>
     const farben = ["#1976D2", "#388E3C", "#F57C00", "#7B1FA2", "#D32F2F", "#5D4037", "#0097A7"];
