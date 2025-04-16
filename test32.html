@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Wochenkalender</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    .calendar-wrapper {
+      display: flex;
+    }
+
+    .time-column {
+      width: 60px;
+      position: relative;
+    }
+
+    .time-slot {
+      height: 30px;
+      border-top: 1px solid #ddd;
+      font-size: 0.7em;
+      text-align: right;
+      padding-right: 5px;
+      color: #666;
+    }
+
+    .calendar {
+      display: grid;
+      flex: 1;
+      grid-template-columns: repeat(5, 1fr);
+      position: relative;
+      border-left: 1px solid #ccc;
+      border-top: 1px solid #ccc;
+      height: 540px; /* 18 * 30min * 30px */
+    }
+
+    .day-column {
+      border-right: 1px solid #ccc;
+      position: relative;
+    }
+
+    .day-header {
+      background-color: #eee;
+      text-align: center;
+      padding: 5px;
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .event {
+      position: absolute;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.75em;
+      padding: 2px 4px;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .legend {
+      margin-top: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      margin-right: 8px;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button onclick="prevWeek()">&larr; Vorherige Woche</button>
+    <button onclick="nextWeek()">Nächste Woche &rarr;</button>
+    <button onclick="document.getElementById('fileInput').click()">Dateien auswählen</button>
+    <input type="file" id="fileInput" accept=".txt" multiple hidden>
+  </div>
+
+  <div class="calendar-wrapper">
+    <div class="time-column" id="timeColumn"></div>
+    <div class="calendar" id="calendar"></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <script>
+    const colors = ["#1976D2", "#388E3C", "#F57C00", "#7B1FA2", "#D32F2F", "#0097A7"];
+    const weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"];
+    let currentWeek = new Date();
+    let allEvents = [];
+    let fileInfos = [];
+
+    const calendar = document.getElementById("calendar");
+    const timeColumn = document.getElementById("timeColumn");
+
+    function renderTimeColumn() {
+      timeColumn.innerHTML = "";
+      for (let i = 8; i <= 17; i++) {
+        for (let j = 0; j < 2; j++) {
+          const slot = document.createElement("div");
+          slot.className = "time-slot";
+          if (j === 0) slot.textContent = `${String(i).padStart(2, '0')}:00`;
+          timeColumn.appendChild(slot);
+        }
+      }
+    }
+
+    function getWeekStart(date) {
+      const day = date.getDay();
+      const diff = date.getDate() - (day === 0 ? 6 : day - 1);
+      return new Date(date.setDate(diff));
+    }
+
+    function timeToPixels(time) {
+      const [h, m] = time.split(":").map(Number);
+      return ((h - 8) * 60 + m) * 0.5;
+    }
+
+    function renderCalendar() {
+      calendar.innerHTML = "";
+      const monday = getWeekStart(new Date(currentWeek));
+
+      for (let i = 0; i < 5; i++) {
+        const dayDate = new Date(monday);
+        dayDate.setDate(monday.getDate() + i);
+        const col = document.createElement("div");
+        col.className = "day-column";
+        col.innerHTML = `<div class='day-header'>${weekdays[i]}<br>${dayDate.toLocaleDateString()}</div>`;
+
+        calendar.appendChild(col);
+      }
+
+      allEvents.forEach(ev => {
+        const eventDate = new Date(ev.date);
+        const colIndex = (eventDate.getDay() + 6) % 7; // Mo=0 .. Fr=4
+        if (colIndex < 0 || colIndex > 4) return;
+
+        const column = calendar.children[colIndex];
+        const eventEl = document.createElement("div");
+        const [start, end] = ev.time.split("-");
+        const top = timeToPixels(start);
+        const height = timeToPixels(end) - top;
+
+        eventEl.className = "event";
+        eventEl.style.top = `${top}px`;
+        eventEl.style.height = `${height}px`;
+        eventEl.style.left = "2px";
+        eventEl.style.right = "2px";
+        eventEl.style.backgroundColor = ev.color;
+        eventEl.innerHTML = `<strong>${ev.subject}</strong><br>${ev.time}<br>${ev.teacher}<br><em>${ev.room} – ${ev.type}</em>`;
+
+        column.appendChild(eventEl);
+      });
+    }
+
+    function updateLegend() {
+      const legend = document.getElementById("legend");
+      legend.innerHTML = "<h3>Legende</h3>";
+      fileInfos.forEach(info => {
+        const el = document.createElement("div");
+        el.className = "legend-item";
+        el.innerHTML = `<span class='legend-color' style='background:${info.color}'></span>${info.name}`;
+        legend.appendChild(el);
+      });
+    }
+
+    function parseFiles(files) {
+      allEvents = [];
+      fileInfos = [];
+      Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        const color = colors[index % colors.length];
+
+        reader.onload = function(e) {
+          const text = e.target.result;
+          const lines = text.split("\n");
+          const start = lines.findIndex(l => l.includes("Datum") && l.includes("Fach"));
+          if (start === -1) return;
+          const entries = lines.slice(start + 1).filter(l => l.trim());
+
+          for (let i = 0; i < entries.length; i += 2) {
+            const l1 = entries[i].trim();
+            const l2 = entries[i + 1]?.trim() || "";
+            const parts = l1.split(/\s+/);
+            const dateStr = parts[0];
+            const time = parts[2];
+            const teacher = parts[3];
+            const subject = parts.slice(4).join(" ");
+
+            const [d, m, y] = dateStr.split(".");
+            const date = new Date(`20${y}-${m}-${d}`);
+
+            const room = l2.split(/\s{2,}/)[0] || "";
+            const type = l2.split(/\s{2,}/)[2] || "";
+
+            allEvents.push({ date, time, teacher, subject, room, type, color });
+          }
+
+          fileInfos.push({ name: file.name, color });
+          renderCalendar();
+          updateLegend();
+        };
+
+        reader.readAsText(file, "utf-8");
+      });
+    }
+
+    document.getElementById("fileInput").addEventListener("change", e => {
+      currentWeek = new Date();
+      parseFiles(e.target.files);
+    });
+
+    function prevWeek() {
+      currentWeek.setDate(currentWeek.getDate() - 7);
+      renderCalendar();
+    }
+
+    function nextWeek() {
+      currentWeek.setDate(currentWeek.getDate() + 7);
+      renderCalendar();
+    }
+
+    renderTimeColumn();
+    renderCalendar();
+  </script>
+</body>
+</html>
