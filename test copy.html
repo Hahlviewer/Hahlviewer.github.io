@@ -194,60 +194,60 @@
     let alleTermine = [];
     let dateiInfos = [];
 
-    function setThemeClass(theme) {
-      document.documentElement.classList.toggle('dark', theme === 'dark');
-      }
+    // function setThemeClass(theme) {
+    //   document.documentElement.classList.toggle('dark', theme === 'dark');
+    //   }
 
-    function getPreferredTheme() {
-      // Check localStorage first
-      const stored = localStorage.getItem('theme');
-      if (stored) return stored;
+    // function getPreferredTheme() {
+    //   // Check localStorage first
+    //   const stored = localStorage.getItem('theme');
+    //   if (stored) return stored;
 
-      // Fallback to system preference
-      return window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
-    }
+    //   // Fallback to system preference
+    //   return window.matchMedia('(prefers-color-scheme: dark)').matches
+    //     ? 'dark'
+    //     : 'light';
+    // }
 
-    setThemeClass(getPreferredTheme());
+    // setThemeClass(getPreferredTheme());
 
-    function toggle_theme(){
-      const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      setThemeClass(next);
-      localStorage.setItem('theme', next);
-    }
+    // function toggle_theme(){
+    //   const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    //   const next = current === 'dark' ? 'light' : 'dark';
+    //   setThemeClass(next);
+    //   localStorage.setItem('theme', next);
+    // }
 
-    function getMontag(datum) {
-      const tag = datum.getDay();
-      const diff = datum.getDate() - (tag === 0 ? 6 : tag - 1);
-      return new Date(datum.setDate(diff));
-    }
+    // function getMontag(datum) {
+    //   const tag = datum.getDay();
+    //   const diff = datum.getDate() - (tag === 0 ? 6 : tag - 1);
+    //   return new Date(datum.setDate(diff));
+    // }
 
-    function erstelleLeerenKalender() {
-      const kalender = document.getElementById("kalender");
-      kalender.innerHTML = "";
+    // function erstelleLeerenKalender() {
+    //   const kalender = document.getElementById("kalender");
+    //   kalender.innerHTML = "";
 
-      const heute = new Date();
-      const montag = getMontag(new Date(aktuelleWoche));
+    //   const heute = new Date();
+    //   const montag = getMontag(new Date(aktuelleWoche));
 
-      for (let i = 0; i < 5; i++) {
-        const datum = new Date(montag);
-        datum.setDate(montag.getDate() + i);
-        const tagId = datum.toDateString();
+    //   for (let i = 0; i < 5; i++) {
+    //     const datum = new Date(montag);
+    //     datum.setDate(montag.getDate() + i);
+    //     const tagId = datum.toDateString();
 
-        const div = document.createElement("div");
-        div.className = "tag";
-        div.id = tagId;
+    //     const div = document.createElement("div");
+    //     div.className = "tag";
+    //     div.id = tagId;
 
-        if (heute.toDateString() === datum.toDateString()) {
-          div.classList.add("heute");
-        }
+    //     if (heute.toDateString() === datum.toDateString()) {
+    //       div.classList.add("heute");
+    //     }
 
-        div.innerHTML = `<strong>${wochentage[i]}</strong><br>${datum.toLocaleDateString()}<div class="termin-container" id="termine-${tagId}"></div>`;
-        kalender.appendChild(div);
-      }
-    }
+    //     div.innerHTML = `<strong>${wochentage[i]}</strong><br>${datum.toLocaleDateString()}<div class="termin-container" id="termine-${tagId}"></div>`;
+    //     kalender.appendChild(div);
+    //   }
+    // }
 
 
     function zeigeTermine() {
@@ -388,20 +388,20 @@
       });
     }
 
-    function vorherigeWoche() {
-      aktuelleWoche.setDate(aktuelleWoche.getDate() - 7);
-      zeigeTermine();
-    }
+    // function vorherigeWoche() {
+    //   aktuelleWoche.setDate(aktuelleWoche.getDate() - 7);
+    //   zeigeTermine();
+    // }
 
-    function naechsteWoche() {
-      aktuelleWoche.setDate(aktuelleWoche.getDate() + 7);
-      zeigeTermine();
-    }
+    // function naechsteWoche() {
+    //   aktuelleWoche.setDate(aktuelleWoche.getDate() + 7);
+    //   zeigeTermine();
+    // }
 
-    function heute() {
-      aktuelleWoche = new Date();
-      zeigeTermine();
-    }
+    // function heute() {
+    //   aktuelleWoche = new Date();
+    //   zeigeTermine();
+    // }
 
     document.getElementById("fileInput").addEventListener("change", (e) => {
       aktuelleWoche = new Date(); // zurück zur aktuellen Woche beim neuen Upload
