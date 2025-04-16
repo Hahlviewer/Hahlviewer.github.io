@@ -83,18 +83,16 @@
             width: 100%;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(36, 10px);
-            border: 1px solid #ff0000;
         }
 
         .appointment {
             padding: 4px;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 0.83em;
             overflow-wrap: break-word;
             hyphens: auto;
             color: var(--lv_fg);
             font-weight: normal;
-            background: #ff0000;
         }
 
         .caption {
@@ -120,7 +118,7 @@
         }
 
         .highlighted_text {
-            color: aqua;
+            color: var(--highlighted_fg);
         }
 
         .text {
@@ -284,22 +282,22 @@
             }
         }
 
-        function get_appointment_div(appointment) {
+        function add_appointment_div(appointment) {
+            const container = document.getElementById(`container-${appointment.date.toDateString()}`);
             const ap = document.createElement("div");
             ap.className = "appointment";
             ap.id = appointment.id;
-            ap.style.backgroundColor = colors[input_file_infos[appointment.input_file_id]["color"]];
-            ap.style.gridColumn = `${appointment_positions[appointment.id].start_column} / span ${appointment_positions[appointment.id].column_lenght}`;
-            ap.style.gridRow = `${appointment_positions[appointment.id].start_row} / span ${appointment_positions[appointment.id].row_lenght}`;
+            ap.style.backgroundColor = input_file_infos[appointment.input_file_id]["color"];
+            ap.style.gridColumn = `${appointment_positions[appointment.id]["start_column"]} / span ${appointment_positions[appointment.id]["column_lenght"]}`;
+            ap.style.gridRow = `${appointment_positions[appointment.id]["start_row"]} / span ${appointment_positions[appointment.id]["row_lenght"]}`;
             ap.innerHTML = `
-              <span class="highlighted_text">${appointment.info}</span><br/>
+              <span class="highlighted_text">${appointment.info}</span>
               <strong>${appointment.subject}</strong><br>
               ${appointment.time_str}<br>
               ${appointment.professor}<br>
               <em>${appointment.location}</em>
             `;
-            return ap;
-
+            container.appendChild(ap);
         }
 
         function display_appointments() {
@@ -307,9 +305,7 @@
                 const diff = (appointment.date - current_monday) / (1000 * 60 * 60 * 24);
                 if (diff >= 0 && diff < 5) {
                     if (input_file_infos[appointment.input_file_id].visible) {
-                        const div = get_appointment_div(appointment)
-                        const container = document.getElementById(`container-${appointment.date.toDateString()}`);
-                        container.appendChild(div);
+                        add_appointment_div(appointment);
                     }
                 }
             })
@@ -320,108 +316,116 @@
                 const date = new Date(current_monday);
                 date.setDate(date.getDate() + i);
                 const id = date.toDateString()
-
-                const day_object = document.getElementById(`container-${id}`);
-                day_object.style.gridTemplateColumns = `repeat(${day_infos[id]["column_count"]}, 1fr)`;
+                if (day_infos[id]) {
+                    const day_object = document.getElementById(`container-${id}`);
+                    day_object.style.gridTemplateColumns = `repeat(${day_infos[id]["column_count"]}, 1fr)`;
+                }
             }
         }
 
 
 
-        function import_files(files) {
+        async function import_files(files) {
             day_infos = {};
             appointment_positions = {};
 
-            [...files].forEach((file, index) => {
-                // Add to input_file_infos
-                const import_date = new Date().toDateString();
-                const input_file_id = file.name + index + import_date;
-                const new_input_file_info = {
-                    input_file_name: file.name,
-                    import_date: import_date,
-                    color: colors[input_file_infos.length % colors.length],
-                    visible: true
-                };
-                input_file_infos[input_file_id] = new_input_file_info;
+            const import_date = new Date().toDateString();
 
-                // Create all appointments
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const decoder = new TextDecoder("windows-1252");
-                    const content = decoder.decode(e.target.result);
-                    const row = content.split("\n");
-                    const data_start_index = row.findIndex(z => z.includes("Raum") && z.includes("Format") && z.includes("Typ")) + 1;
-                    if (data_start_index === -1) return; // HIER FEHLER EINFÜGEN
+            const fileReadPromises = [...files].map((file, index) => {
+                return new Promise((resolve, reject) => {
+                    // Add to input_file_infos
+                    const input_file_id = file.name + index + import_date;
+                    const new_input_file_info = {
+                        input_file_name: file.name,
+                        import_date: import_date,
+                        color: colors[Object.keys(input_file_infos).length % colors.length],
+                        visible: true
+                    };
+                    input_file_infos[input_file_id] = new_input_file_info;
+                    // Create all appointments
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        try {
+                            const decoder = new TextDecoder("windows-1252");
+                            const content = decoder.decode(e.target.result);
+                            const row = content.split("\n");
+                            const data_start_index = row.findIndex(z => z.includes("Raum") && z.includes("Format") && z.includes("Typ")) + 1;
+                            if (data_start_index === 0) return resolve();
 
-                    const entry = row.slice(data_start_index + 1).filter(z => z.trim());
+                            const entry = row.slice(data_start_index + 1).filter(z => z.trim());
 
-                    for (let z = 0; z < entry.length; z += 2) {
-                        const row1 = entry[z].trim();
-                        const row2 = entry[z + 1]?.trim() || "";
+                            for (let z = 0; z < entry.length; z += 2) {
+                                const row1 = entry[z].trim();
+                                const row2 = entry[z + 1]?.trim() || "";
 
-                        const parts1 = row1.split(/\s+/);
-                        const date_str = parts1[0];
-                        const time_str = parts1[2];
+                                const parts1 = row1.split(/\s+/);
+                                const date_str = parts1[0];
+                                const time_str = parts1[2];
 
-                        let professor;
-                        let subject;
+                                let professor;
+                                let subject;
 
-                        if (row1.split(parts1[3])[1].split(parts1[4])[0] === " ") {
-                            professor = parts1[3].replace(/_/g, ' ').trim() + ", " + parts1[4].replace(/_/g, ' ').trim() + "."
-                            subject = parts1.slice(5).join(" ");
-                        } else {
-                            professor = parts1[3].replace(/_/g, ' ')
-                            subject = parts1.slice(4).join(" ");
+                                if (row1.split(parts1[3])[1].split(parts1[4])[0] === " ") {
+                                    professor = parts1[3].replace(/_/g, ' ').trim() + ", " + parts1[4].replace(/_/g, ' ').trim();
+                                    subject = parts1.slice(5).join(" ");
+                                } else {
+                                    professor = parts1[3].replace(/_/g, ' ');
+                                    subject = parts1.slice(4).join(" ");
+                                }
+                                professor = professor.replace(/\b\w\b/g, match => match + '.');
+                                if (subject.length >= 2 && subject.charAt(subject.length - 2) === " ") {
+                                    subject = subject.slice(0, -2);
+                                }
+
+                                const [day, month, year] = date_str.split(".");
+                                const date = new Date(`20${year}-${month}-${day}`);
+
+                                const parts2 = row2.split(/\s+/);
+                                const room = parts2[0];
+                                const type = parts2[1];
+                                let location = type === "Online-Präsenz" ? "Online" : `${type} - ${room}`;
+                                let info = parts2.slice(2).join(" ") + "<br/>";
+                                if (info === "LV<br/>") info = "";
+
+                                appointments.push({
+                                    date,
+                                    time_str,
+                                    professor,
+                                    info,
+                                    subject,
+                                    location,
+                                    input_file_id,
+                                    id: input_file_id + date.toDateString() + time_str + professor + subject
+                                });
+
+                            }
+                            resolve();
+                        } catch (err) {
+                            console.log(err)
+                            reject(err); // HIER FEHLER EINFÜGEN
                         }
-                        if (subject.length >= 2 && subject.charAt(subject.length - 2) === " ") {
-                            subject = subject.slice(0, -2);
-                        }
-
-                        const [day, month, year] = date_str.split(".");
-                        const date = new Date(`20${year}-${month}-${day}`);
-
-                        const parts2 = row2.split(/\s+/);
-                        const room = parts2[0];
-                        const type = parts2[1];
-                        let location = "";
-                        if (type === "Online-Präsenz") {
-                            location = "Online";
-                        } else {
-                            location = `${type} - ${room}`;
-                        }
-                        let info = parts2.slice(2).join(" ");
-                        if (info === "LV") {
-                            info = "";
-                        };
-
-                        appointments.push({
-                            date: date,
-                            time_str: time_str,
-                            professor: professor,
-                            info: info,
-                            subject: subject,
-                            location: location,
-                            input_file_name: input_file_id,
-                            id: input_file_id + date.toDateString() + time_str
-                        });
-
                     }
-                }
-                reader.readAsArrayBuffer(file);
+                    reader.onerror = reject;
+                    reader.readAsArrayBuffer(file);
 
+                });
             });
+
+            await Promise.all(fileReadPromises);
+
             create_day_positions();
-            create_empty_calender();
-            // change_day_infos();
-            display_appointments();
+            update_calender();
         }
+
         function get_simultaneously_appointment_count(ap_a) {
             const range_a = get_start_end_min(ap_a.time_str);
             let array = [];
             appointments.forEach(ap_b => {
-                const range_b = get_start_end_min(ap_b.time_str);
-                if ((range_a[0] <= range_b[0] && range_a[1] > range_b[0]) || (range_a[0] < range_b[1] && range_a[1] >= range_b[1])) {
-                    array.push(ap_b);
+                if (ap_a.date.toDateString() === ap_b.date.toDateString()) {
+                    const range_b = get_start_end_min(ap_b.time_str);
+                    if ((range_a[0] <= range_b[0] && range_a[1] > range_b[0]) || (range_a[0] < range_b[1] && range_a[1] >= range_b[1])) {
+                        array.push(ap_b);
+                    }
                 }
             });
             return array;
@@ -433,9 +437,8 @@
             //     day_str: [4, 5, 2],
             //     day_str2: [1,2,5]
             // }
-            console.log(appointments)
+
             appointments.forEach(appointment => {
-                console.log("ok")
                 const sim_count = get_simultaneously_appointment_count(appointment).length;
                 const day_str = appointment.date.toDateString();
                 if (!same_time_list[day_str]) {
@@ -450,26 +453,24 @@
                     column_count: get_grid_columns(same_time_list[day_str])
                 }
             }
-            console.log(day_infos);
-
 
             appointments.forEach(appointment => {
                 const sim_array = get_simultaneously_appointment_count(appointment);
                 const day_str = appointment.date.toDateString();
                 const day_columns = day_infos[day_str]["column_count"];
 
-                let sim_placed_counter = 0;
+                let sim_placed_counter = -1;
                 sim_array.forEach(ap_b => {
                     if (!appointment_positions[ap_b.id]) {
                         sim_placed_counter += 1;
                     }
                 })
-                const column_width = sim_array.length / day_columns;
+                const column_width = day_columns / sim_array.length;
                 const row_position = get_row_position(appointment.time_str);
 
                 appointment_positions[appointment.id] = {
                     start_row: row_position[0],
-                    start_column: sim_placed_counter * column_width,
+                    start_column: (sim_placed_counter * column_width)+1,
                     row_lenght: row_position[1],
                     column_lenght: column_width
                 }
@@ -478,9 +479,9 @@
 
         function get_row_position(time_str) {
             const range = get_start_end_min(time_str);
-            const start_row = (range[0] - beginning_time) % 15;
-            const row_lenght = (range[1] - range[0]) % 15
-            return [start_row, row_lenght]
+            const start_row = Math.floor((range[0] - beginning_time) / 15);
+            const row_lenght = Math.floor((range[1] - range[0]) / 15);
+            return [start_row, row_lenght];
         }
 
 
@@ -490,9 +491,9 @@
         }
 
         function get_start_end_min(time_str) {
-            const start_min = timeToMinutes(time_str.split("-")[0])
-            const end_min = timeToMinutes(time_str.split("-")[1])
-            return [start_min, end_min]
+            const start_min = timeToMinutes(time_str.split("-")[0]);
+            const end_min = timeToMinutes(time_str.split("-")[1]);
+            return [start_min, end_min];
         }
 
         function greatest_common_divisor(a, b) {
@@ -509,7 +510,14 @@
         }
 
         function get_grid_columns(array) {
-            return array.reduce((acc, val) => lowest_common_multiple(acc, val));
+            const out = array.reduce((acc, val) => lowest_common_multiple(acc, val));
+            return out;
+        }
+
+        function update_calender() {
+            create_empty_calender();
+            change_day_infos();
+            display_appointments();
         }
 
         function change_week(value = null) {
@@ -518,7 +526,7 @@
             } else {
                 current_monday.setDate(current_monday.getDate() + value);
             }
-            create_empty_calender();
+            update_calender();
         }
 
         document.getElementById("fileInput").addEventListener("change", (e) => {
