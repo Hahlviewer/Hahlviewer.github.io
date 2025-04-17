@@ -614,7 +614,7 @@
                     ap = appointment;
                 }
             });
-            if (ap !== null) {
+            if (ap === null) {
                 show_error("001","Termin existiert nicht")
                 return; 
             }
