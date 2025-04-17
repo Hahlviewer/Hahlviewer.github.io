@@ -716,9 +716,7 @@
 
                             const entry = row.slice(data_start_index + 1).filter(z => z.trim());
 
-                            console.log("entry.length", entry.length)
                             if (entry.length === 0) {
-                                console.log("test13")
                                 show_error("003", `TXT-Datei kann nicht ausgelesen werden: 0 Einträge erkannt: ${err}`);
                                 return;
                             }
@@ -769,7 +767,6 @@
                             }
                             resolve();
                         } catch (err) {
-                            console.log("test")
                             show_error("002", `TXT-Datei kann nicht ausgelesen werden: Fehler beim Auslesen der Einträge: ${err}`);
                             reject(err); 
                             return;
@@ -794,9 +791,6 @@
             });
 
             await Promise.all(fileReadPromises);
-
-            console.log("appointments", appointments)
-            console.log("input_file_infos", input_file_infos)
 
             create_day_positions();
             update_calender();
@@ -939,7 +933,6 @@
             const dialog = document.getElementById("dialog");
             const old_state = dialog.open;
             dialog.close();
-            check_for_data();
             return old_state;
         }
 
