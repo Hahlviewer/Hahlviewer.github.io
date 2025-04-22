@@ -487,16 +487,15 @@
         function change_color(input_file_id) {
             const colorInput = document.createElement('input');
             colorInput.type = 'color';
-            colorInput.style.opacity = 0;
-            // colorInput.style.display = 'none';
+            colorInput.style.display = 'none';
 
             document.body.appendChild(colorInput);
 
-            colorInput.click();
             colorInput.addEventListener('input', () => {
                 input_file_infos[input_file_id].color = colorInput.value;
                 update_calender();
             });
+            colorInput.click();
         }
 
         function delete_input_file(input_file_id) {
