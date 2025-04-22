@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <title>Hahlviewer</title>
     <style>
-        @import ('~lucide-static/font/Lucide.css');
-
         :root {
             --bg: #fff;
             --fg: #000;
@@ -489,7 +487,8 @@
         function change_color(input_file_id) {
             const colorInput = document.createElement('input');
             colorInput.type = 'color';
-            colorInput.style.display = 'none'; // versteckt
+            colorInput.style.opacity = 0;
+            // colorInput.style.display = 'none';
 
             document.body.appendChild(colorInput);
 
@@ -615,8 +614,8 @@
                 }
             });
             if (ap === null) {
-                show_error("001", "Termin existiert nicht")
-                return;
+                show_error("001","Termin existiert nicht")
+                return; 
             }
 
             let text = "";
@@ -635,31 +634,15 @@
             show_dialog(ap.subject, div);
         }
 
-
-        function desaturate(hex, factor = 0.5) {
-            let r = parseInt(hex.slice(1, 3), 16);
-            let g = parseInt(hex.slice(3, 5), 16);
-            let b = parseInt(hex.slice(5, 7), 16);
-
-            // Richtung Weiß mischen (255 = weiß)
-            r = Math.floor(r - (r) * factor);
-            g = Math.floor(g - (g) * factor);
-            b = Math.floor(b - (b) * factor);
-
-            return `#${[r, g, b].map(x => x.toString(16).padStart(2, "0")).join("")}`;
-        }
-
         function add_appointment_div(appointment) {
             const container = document.getElementById(`container-${appointment.date}`);
             const ap = document.createElement("div");
             ap.className = "appointment";
             if (appointment.info) {
                 ap.classList.add("highlighted")
-                ap.style.backgroundColor = desaturate(input_file_infos[appointment.input_file_id]["color"]);
-            } else {
-                ap.style.backgroundColor = input_file_infos[appointment.input_file_id]["color"];
             }
             ap.id = appointment.id;
+            ap.style.backgroundColor = input_file_infos[appointment.input_file_id]["color"];
             ap.style.gridColumn = `${appointment_positions[appointment.id]["start_column"]} / span ${appointment_positions[appointment.id]["column_lenght"]}`;
             ap.style.gridRow = `${appointment_positions[appointment.id]["start_row"] + 1} / span ${appointment_positions[appointment.id]["row_lenght"]}`;
             // const letter_limit = Math.floor((letter_count_per_row)*(appointment_positions[appointment.id]["column_lenght"]/appointment_positions[appointment.id]["column_count"]));
@@ -784,7 +767,7 @@
                             resolve();
                         } catch (err) {
                             show_error("002", `TXT-Datei kann nicht ausgelesen werden: Fehler beim Auslesen der Einträge: ${err}`);
-                            reject(err);
+                            reject(err); 
                             return;
                         }
                     }
