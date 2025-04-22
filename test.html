@@ -41,8 +41,9 @@
             --error: #ff4848;
         }
 
-        @media (max-width: 768px) {
+        @media screen and (max-width: 768px) {
             :root {
+                --bg: blue;
                 --border_radius: 5rem;
                 --margin: 25rem;
                 --gap: 5rem;
@@ -369,7 +370,7 @@
 
     <script>
         // Global variables:
-        let touchstart = null;
+        let touchstartX = []; // [position, target]
 
         const beginning_time = 8 * 60;
         const letter_count_per_row = 64;
@@ -1155,13 +1156,22 @@
         });
 
         // Swipe Events
+        function isInteractive(el) {
+            return el.closest('button, a, input, textarea, select, [role="button"], [onclick]');
+        }
+
         window.addEventListener('touchstart', e => {
-            touchstart = e.changedTouches[0].screenX;
+            touchstartX = [e.changedTouches[0].screenX, e.target];
         })
 
         window.addEventListener('touchend', e => {
-            const touchend = e.changedTouches[0].screenX;
-            if (touchstart > touchend) {
+            const touchendX = [e.changedTouches[0].screenX, e.target];
+
+            if (isInteractive(touchstartX[1]) || isInteractive(touchendX[1])) return;
+            if (Math.abs(touchstartX[0] - touchendX[0]) < 50) return;
+            if (document.getElementById("dialog").open) return;
+
+            if (touchstartX[0] > touchendX[0]) {
                 change_week(+7);
             } else {
                 change_week(-7);
