@@ -562,7 +562,8 @@
 
         function get_monday(date = new Date()) {
             const day = date.getDay();
-            const diff = date.getDate() - ((day === 0 ? 6 : day - 1) >= 5 ? day - 8 : day);
+            const diff_to_last_monday = day === 0 ? 6 : day - 1
+            const diff = date.getDate() - (diff_to_last_monday >= 5 ? diff_to_last_monday - 7 : diff_to_last_monday);
             return new Date(date.setDate(diff));
         }
 
