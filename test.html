@@ -487,7 +487,12 @@
         function change_color(input_file_id) {
             const colorInput = document.createElement('input');
             colorInput.type = 'color';
-            colorInput.style.display = 'none';
+            // colorInput.style.display = 'none';
+
+            colorInput.style.opacity = '0';
+            colorInput.style.position = 'fixed';
+            colorInput.style.left = '-9999px';
+
 
             document.body.appendChild(colorInput);
 
@@ -613,8 +618,8 @@
                 }
             });
             if (ap === null) {
-                show_error("001","Termin existiert nicht")
-                return; 
+                show_error("001", "Termin existiert nicht")
+                return;
             }
 
             let text = "";
@@ -766,7 +771,7 @@
                             resolve();
                         } catch (err) {
                             show_error("002", `TXT-Datei kann nicht ausgelesen werden: Fehler beim Auslesen der Einträge: ${err}`);
-                            reject(err); 
+                            reject(err);
                             return;
                         }
                     }
