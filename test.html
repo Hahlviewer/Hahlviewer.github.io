@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Hahlviewer</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+
+
     <style>
         :root {
             --bg: #fff;
@@ -192,6 +197,33 @@
         .link {
             color: var(--fg_link);
         }
+
+        input[type="color"],
+        input[type="color"]::-webkit-color-swatch-wrapper,
+        input[type="color"]::-webkit-color-swatch,
+        input[type="color"]::-moz-color-swatch {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+
+            border: none;
+            padding: 0;
+            background: none;
+            width: 5rem;
+            height: 100%;
+            cursor: pointer;
+
+            border-radius: var(--border_radius);
+        }
+
+        input[type="color"]:hover {
+            outline: 0.2rem solid var(--border);
+        }
+
+        input[type="color"]:active {
+            transform: scale(0.95);
+        }
+
 
         .dialog_container {
             display: flex;
@@ -462,14 +494,18 @@
             const infos = [
                 { name: "Dateiname:", content: input_file_infos[input_file_id].input_file_name },
                 { name: "Importdatum:", content: new Date(input_file_infos[input_file_id].import_date).toLocaleDateString() },
-                { name: "Farbe:", content: `${input_file_infos[input_file_id].color} ➞ <span style="background-color: ${input_file_infos[input_file_id].color}">     </span>` },
+                // { name: "Farbe:", content: `${input_file_infos[input_file_id].color} ➞ <span style="background-color: ${input_file_infos[input_file_id].color}">     </span>` },
+                { name: "Farbe ändern:", content: `<input type="color" style="border-color: '${input_file_infos[input_file_id].color}'" value="${input_file_infos[input_file_id].color}" oninput="change_color(this, '${input_file_id}')">` }
             ]
 
             div.appendChild(get_table_div(infos));
 
 
+
+
+
             const buttons = [
-                { text: "Farbe ändern", function: () => change_color(input_file_id) },
+                //{ text: "Farbe ändern", function: () => change_color(input_file_id) },
                 { text: "ICS-/Kalender-Dateien herunterladen", function: () => download_ics_appointements(input_file_id) },
                 { text: "Löschen", function: () => delete_input_file(input_file_id) },
             ]
@@ -484,24 +520,38 @@
             show_dialog(display_name, div);
         }
 
-        function change_color(input_file_id) {
-            const colorInput = document.createElement('input');
-            colorInput.type = 'color';
-            // colorInput.style.display = 'none';
-
-            colorInput.style.opacity = '0';
-            colorInput.style.position = 'fixed';
-            colorInput.style.left = '-9999px';
 
 
-            document.body.appendChild(colorInput);
-
-            colorInput.addEventListener('input', () => {
-                input_file_infos[input_file_id].color = colorInput.value;
-                update_calender();
-            });
-            colorInput.click();
+        // Funktion zum Erstellen und Initialisieren des Farbwählers
+        function change_color(color_picker, input_file_id) {
+            console.log(input_file_id)
+            input_file_infos[input_file_id].color = color_picker.value;
+            update_calender();
         }
+
+
+        // function change_color(input_file_id) {
+        //     const colorInput = document.createElement('input');
+        //     colorInput.type = 'color';
+        //     colorInput.style.display = 'none';
+        //     colorInput.id = "color-input";
+
+        //     const label = document.createAttribute("label");
+        //     // label.style.display = 'none';
+        //     label.htmlFor = "color-input";
+        //     label.id = "color-label"
+
+
+        //     document.body.appendChild(label);
+        //     document.body.appendChild(colorInput);
+
+
+        // document.getElementById("color-picker").addEventListener('input', () => {
+        //     input_file_infos[input_file_id].color = colorInput.value;
+        //     update_calender();
+        // });
+        // document.getElementById("color-label").click();
+        // }
 
         function delete_input_file(input_file_id) {
             delete input_file_infos[input_file_id];
@@ -1069,8 +1119,6 @@
             }
             update_calender();
         }
-
-
 
         document.getElementById("fileInput").addEventListener("change", (e) => {
             change_week();
