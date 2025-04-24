@@ -419,8 +419,25 @@
 
 
 
-
-        // Functions:
+        function detectMob() {
+            const toMatch = [
+                /Android/i,
+                /webOS/i,
+                /iPhone/i,
+                /iPad/i,
+                /iPod/i,
+                /BlackBerry/i,
+                /Windows Phone/i
+            ];
+            
+            return toMatch.some((toMatchItem) => {
+                return navigator.userAgent.match(toMatchItem);
+            });
+        }
+        
+        alert(detectMob)
+        
+        
         function setThemeClass(theme) {
             document.documentElement.classList.toggle('dark', theme === 'dark');
         }
@@ -1178,10 +1195,11 @@
                 touch_count -= 1;
                 return;
             }
+            touch_count = 0;
             
             if (touchstartX.lenght === 0) return;
             if (isInteractive(touchstartX[1]) || isInteractive(touchendX[1])) return;
-            if (Math.abs(touchstartX[0] - touchendX[0]) < (window.screen.width * 0.1)) return;
+            if (Math.abs(touchstartX[0] - touchendX[0]) < (window.screen.width * 0.2)) return;
             if (document.getElementById("dialog").open) return;
 
             if (touchstartX[0] > touchendX[0]) {
@@ -1189,7 +1207,6 @@
             } else {
                 change_week(-7);
             }
-            touch_count = 0;
             touchstartX = [];
         })
 
