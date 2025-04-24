@@ -40,6 +40,10 @@
             --overlay_button_bg: #3f3f3f;
             --error: #ff4848;
         }
+        
+        .mobile-user {
+            --bg: green;
+        }
 
         @media screen and (max-width: 768px) {
             :root {
@@ -419,7 +423,7 @@
 
 
 
-        function detectMob() {
+        function is_mobile_user() {
             const toMatch = [
                 /Android/i,
                 /webOS/i,
@@ -435,7 +439,9 @@
             });
         }
         
-        alert(detectMob());
+        function set_screen_variables() {
+            document.documentElement.classList.toggle('mobile-user', is_mobile_user());
+        }
         
         
         function setThemeClass(theme) {
