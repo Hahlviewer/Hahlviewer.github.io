@@ -371,6 +371,7 @@
     <script>
         // Global variables:
         let touchstartX = []; // [position, target]
+        let touch_count = 0;
 
         const beginning_time = 8 * 60;
         const letter_count_per_row = 64;
@@ -1162,9 +1163,10 @@
         }
 
         window.addEventListener('touchstart', e => {
-            if (touchstartX.lenght === 0) {
+            if (touch_count === 0) {
                 touchstartX = [e.changedTouches[0].screenX, e.target];
             } else {
+                touch_count += 1;
                 touchstartX = [];
             }
         })
@@ -1172,9 +1174,14 @@
         window.addEventListener('touchend', e => {
             const touchendX = [e.changedTouches[0].screenX, e.target];
 
+            if (touch_count > 1) {
+                touch_count -= 1;
+                return;
+            }
+            
             if (touchstartX.lenght === 0) return;
             if (isInteractive(touchstartX[1]) || isInteractive(touchendX[1])) return;
-            if (Math.abs(touchstartX[0] - touchendX[0]) < (window.screen.width * 0.3)) return;
+            if (Math.abs(touchstartX[0] - touchendX[0]) < (window.screen.width * 0.1)) return;
             if (document.getElementById("dialog").open) return;
 
             if (touchstartX[0] > touchendX[0]) {
@@ -1182,6 +1189,7 @@
             } else {
                 change_week(-7);
             }
+            touch_count = 0;
             touchstartX = [];
         })
 
