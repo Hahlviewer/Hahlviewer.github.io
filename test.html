@@ -1169,7 +1169,7 @@
             const touchendX = [e.changedTouches[0].screenX, e.target];
 
             if (isInteractive(touchstartX[1]) || isInteractive(touchendX[1])) return;
-            if (Math.abs(touchstartX[0] - touchendX[0]) < 50) return;
+            if (Math.abs(touchstartX[0] - touchendX[0]) < ($(window).width() * 0.3) return;
             if (document.getElementById("dialog").open) return;
 
             if (touchstartX[0] > touchendX[0]) {
