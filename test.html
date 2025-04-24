@@ -1162,12 +1162,17 @@
         }
 
         window.addEventListener('touchstart', e => {
-            touchstartX = [e.changedTouches[0].screenX, e.target];
+            if (touchstartX.lenght === 0) {
+                touchstartX = [e.changedTouches[0].screenX, e.target];
+            } else {
+                touchstartX = [];
+            }
         })
 
         window.addEventListener('touchend', e => {
             const touchendX = [e.changedTouches[0].screenX, e.target];
 
+            if (touchstartX.lenght === 0) return;
             if (isInteractive(touchstartX[1]) || isInteractive(touchendX[1])) return;
             if (Math.abs(touchstartX[0] - touchendX[0]) < ($(window).width() * 0.3) return;
             if (document.getElementById("dialog").open) return;
