@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<style>
+    /* Verhindert Safari-Zurück-Geste per CSS für den Body */
+    body {
+      overscroll-behavior-x: none; /* Kein Scrollen nach außen (Safari + Chrome) */
+      touch-action: pan-y;         /* Nur vertikales Scrollen erlauben */
+    }
+  </style>
+  
+  <script>
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const minSwipePercent = 0.1;
+    const edgeThreshold = 30;
+  
+    function handleLeftSwipe() {
+      alert("Swipe nach links");
+      // Methode für links
+    }
+  
+    function handleRightSwipe() {
+      alert("Swipe nach rechts");
+      // Methode für rechts
+    }
+  
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+  
+      const touch = e.touches[0];
+      const fromEdge = touch.clientX < edgeThreshold || touch.clientX > window.innerWidth - edgeThreshold;
+  
+      // Ausnahme 1: Mehrfingergesten → ignorieren
+      // Ausnahme 2: Rand-Swipe → blockieren
+      if (fromEdge) {
+        e.preventDefault(); // Safari: verhindert Zurück-Geste
+      }
+  
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    }, { passive: false }); // <<< wichtig für preventDefault
+  
+    window.addEventListener('touchend', (e) => {
+      if (!touchStartX || e.changedTouches.length !== 1) return;
+  
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+  
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        const swipeDistance = Math.abs(deltaX);
+        const minSwipe = window.innerWidth * minSwipePercent;
+  
+        if (swipeDistance >= minSwipe) {
+          if (deltaX > 0) {
+            handleRightSwipe();
+          } else {
+            handleLeftSwipe();
+          }
+        }
+      }
+  
+      touchStartX = null;
+      touchStartY = null;
+    });
+  </script>
+  
