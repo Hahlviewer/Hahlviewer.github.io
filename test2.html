@@ -8,34 +8,28 @@
 
 <html>
 
-<h1>toller Text22321</h1>
+<h1>toller Text22</h1>
 
 </html>
 
 <script>
-  let touchStartX = 0;
-  let touchStartY = 0;
-  const minSwipePercent = 0.1;
-  const edgeThreshold = 30;
-  const initial_screen_width = window.innerWidth;
+//   let touchStartX = 0;
+//   let touchStartY = 0;
+//   const minSwipePercent = 0.1;
+//   const edgeThreshold = 30;
+//   const initial_screen_width = window.innerWidth;
 
-  function is_iphone_user() {
-    const toMatch = [
-      /iPhone/i
-    ];
+//   function is_iphone_user() {
+//     return /iPhone/i.test(navigator.userAgent);
+// }
 
-    return toMatch.some((toMatchItem) => {
-      return navigator.userAgent.match(toMatchItem);
-    });
-  }
-
-  function isZoomed() {
-    if (is_iphone_user()) {
-      return ((initial_screen_width * 100) / window.innerWidth) > 100;
-    } else {
-      return window.visualViewport && window.visualViewport.scale !== 1;
-    }
-  }
+  // function isZoomed() {
+  //   if (is_iphone_user()) {
+  //     return ((initial_screen_width * 100) / window.innerWidth) > 100;
+  //   } else {
+  //     return window.visualViewport && window.visualViewport.scale !== 1;
+  //   }
+  // }
 
   function handleLeftSwipe() {
     alert("Swipe nach links");
