@@ -62,7 +62,6 @@ body {
 body {
     display: flex;
     flex-direction: column;
-    /* background-color: var(--bg); */
     background-color: var(--overlay_bg);
     font-family: sans-serif;
     font-size: var(--normal_font_size);
@@ -275,7 +274,7 @@ button {
     border: none;
     color: var(--fg);
     background-color: var(--overlay_bg);
-    border-radius: 8px;
+    border-radius: var(--border_radius);
     padding: var(--normal_padding) var(--double_padding);
     font-size: var(--normal_font_size);
     cursor: pointer;
@@ -283,12 +282,13 @@ button {
     min-width: var(--min-button-width);
 }
 
+
 .overlay_button {
     background-color: var(--overlay_button_bg);
     padding: var(--double_padding) var(--double_padding);
 }
 
-:not(.mobile-user) button:hover {
+html:not(.mobile-user) button:hover {
     background-color: var(--highlighted_bg);
 }
 

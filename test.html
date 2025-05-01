@@ -656,7 +656,7 @@
             const dialog = document.getElementById("dialog");
             const dialog_button = document.getElementById("dialog-button");
             if (is_closerable) {
-                dialog_button.textContent = "🗙";
+                dialog_button.textContent = "✕";
                 dialog_button.onclick = () => close_dialog();
                 dialog.removeEventListener('keydown', preventEscClose);
             } else {
@@ -857,48 +857,6 @@
                 check_for_data()
             }
         });
-
-        // Old Swipe Events
-        // function isInteractive(el) {
-        //     return el.closest('button, a, input, textarea, select, [role="button"], [onclick]');
-        // }
-
-        // window.addEventListener('touchstart', e => {
-        //     if (touch_count === 0) {
-        //         touchstartX = [e.changedTouches[0].screenX, e.target];
-        //     } else {
-        //         touch_count += 1;
-        //         touchstartX = [];
-        //     }
-        // })
-
-        // window.addEventListener('touchend', e => {
-        //     const touchendX = [e.changedTouches[0].screenX, e.target];
-
-        //     if (touch_count > 1) {
-        //         touch_count -= 1;
-        //         return;
-        //     }
-        //     touch_count = 0;
-
-        //     if (touchstartX.lenght === 0) return;
-        //     if (isInteractive(touchstartX[1]) || isInteractive(touchendX[1])) return;
-        //     if (Math.abs(touchstartX[0] - touchendX[0]) < (window.screen.width * 0.2)) return;
-        //     if (document.getElementById("dialog").open) return;
-
-        //     if (touchstartX[0] > touchendX[0]) {
-        //         change_week(+7);
-        //     } else {
-        //         change_week(-7);
-        //     }
-        //     touchstartX = [];
-        // })
-
-
-
-
-
-
 
         // Swipe Events
         function is_iphone_user() {
