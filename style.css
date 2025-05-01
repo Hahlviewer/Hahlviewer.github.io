@@ -47,18 +47,6 @@
     --min-button-width: 6rem;
 }
 
-@media screen and (max-width: 768px) {
-    :root {
-        --bg: blue;
-        --border_radius: 5rem;
-        --margin: 25rem;
-        --gap: 5rem;
-        --small-gap: 3rem;
-        --small_font_size: 83em;
-        --normal_padding: 5rem;
-        --double_padding: 10rem;
-    }
-}
 
 
 html,
