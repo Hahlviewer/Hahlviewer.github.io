@@ -45,6 +45,11 @@
         ©2025 <a class="link" href="https://github.com/programmer-44" target="_blank">E44</a> | <a class="link" href="#"
             onclick="show_troubleshooting()">Fehlerbehebung</a>
     </footer>
+
+
+
+
+
     <script>
         // Global variables:
         let touchStartX = null;
@@ -215,10 +220,6 @@
 
             div.appendChild(get_table_div(infos));
 
-
-
-
-
             const buttons = [
                 { text: "ICS-/Kalender-Dateien herunterladen", function: () => download_ics_appointements(input_file_id) },
                 { text: "Löschen", function: () => delete_input_file(input_file_id) },
@@ -276,7 +277,7 @@
         function get_timeline() {
             const div = document.createElement("div");
             div.className = "timeline";
-            div.innerHTML = `<br/><br/>`
+            div.innerHTML = `<br/><br/>`;
             const grid = document.createElement("div");
             grid.className = "appointment-container";
             for (i = 0; i < 10; i++) {
@@ -312,7 +313,6 @@
                     div.classList.add("today");
                 }
                 div.innerHTML = `<strong>${weekday}</strong><br/>${date.toLocaleDateString()}<div class="appointment-container" id="container-${id}"></div>`;
-
                 calender_object.appendChild(div);
             }
         }
