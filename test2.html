@@ -8,7 +8,7 @@
 
 <html>
 
-<h1>toller Text</h1>
+<h1>toller Text22</h1>
 
 </html>
 
@@ -17,6 +17,7 @@
   let touchStartY = 0;
   const minSwipePercent = 0.1;
   const edgeThreshold = 30;
+  const initial_screen_width = window.innerWidth;
 
   // Prüft, ob gezoomt wurde
   function isZoomed() {
@@ -43,7 +44,7 @@
   window.addEventListener("resize", getSizes, false);
 
   function getSizes() {
-    let zoom = ((window.outerWidth * 100)
+    let zoom = ((initial_screen_width * 100)
       / window.innerWidth);
 
     alert(zoom);
