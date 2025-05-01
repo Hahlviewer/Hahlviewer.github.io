@@ -17,7 +17,7 @@
                 <button onclick="change_week()">Heute</button>
                 <button onclick="change_week(+7)">→</button>
                 <button onclick="document.getElementById('fileInput').click()">📁 Dateien auswählen</button>
-                <input type="file" id="fileInput" accept=".txt" multiple>
+                <input type="file" id="fileInput" accept=".txt, .hahlviewer" multiple>
             </div>
             <div class="controls2" id="controls2">
                 <button onclick="toggle_theme()">🌓</button>
@@ -28,6 +28,7 @@
             <h1 class="error"> Aktiviere Javascript, um diese Website verwenden zu können! </h1>
         </div>
         <div class="caption" id="caption"></div>
+        <button onclick="show_export_dialog()">Als .hahlviewer exportieren</button>
 
         <dialog id="dialog" class="text">
             <div class="controls-wrapper">
@@ -38,7 +39,7 @@
             <div id="dialog-content"></div>
         </dialog>
 
-        <div id="dropOverlay">Hier TXT-Datei ablegen, um Daten zu importieren</div>
+        <div id="dropOverlay">Hier TXT- oder Hahlviewer-Dateien ablegen, um Daten zu importieren</div>
 
     </div>
     <footer class="text">
@@ -236,7 +237,6 @@
         }
 
         function change_color(color_picker, input_file_id) {
-            console.log(input_file_id)
             input_file_infos[input_file_id].color = color_picker.value;
             update_calender();
         }
@@ -368,7 +368,7 @@
                 { name: "Ort:", content: ap.location },
                 { name: "Datum:", content: new Date(ap.date).toLocaleDateString() },
                 { name: "Zeit:", content: ap.time_str },
-                { name: "Kalender:", content: `<span class="lv-fg" style="background-color:${input_file_infos[ap.input_file_id].color}">${get_input_file_display_name(ap.input_file_id)}</span>` }
+                { name: "Kalender:", content: `<span class="lv-fg" style="background-color: ${input_file_infos[ap.input_file_id].color}">${get_input_file_display_name(ap.input_file_id)}</span>` }
             ];
             if (ap.info) {
                 infos.unshift({ name: "Typ:", content: ap.info })
@@ -381,20 +381,26 @@
             const container = document.getElementById(`container-${appointment.date}`);
             const ap = document.createElement("div");
             ap.className = "appointment";
+            let color = input_file_infos[appointment.input_file_id]["color"]
             if (appointment.info) {
                 ap.classList.add("highlighted")
+                ap.style.backgroundColor = change_color_brightness(color, 1.3);
+            } else {
+                ap.style.backgroundColor = color;
             }
             ap.id = appointment.id;
-            ap.style.backgroundColor = input_file_infos[appointment.input_file_id]["color"];
             ap.style.gridColumn = `${appointment_positions[appointment.id]["start_column"]} / span ${appointment_positions[appointment.id]["column_lenght"]}`;
             ap.style.gridRow = `${appointment_positions[appointment.id]["start_row"] + 1} / span ${appointment_positions[appointment.id]["row_lenght"]}`;
-            let subject = appointment.subject;
+            let location = appointment.location;
+            if (!location.includes("Online")) {
+                location = `<span style="background-color: ${change_color_brightness(color, 0.7)}">${location}</span>`;
+            }
             ap.innerHTML = `
       <span class="highlighted_text">${appointment.info}</span>
-      <strong>${subject}</strong><br>
+      <strong>${appointment.subject}</strong><br>
       ${appointment.time_str}<br>
       ${appointment.professor}<br>
-      <em>${appointment.location}</em>
+      <em>${location}</em>
     `;
             ap.onclick = () => click_on_appointment(appointment.id);
             container.appendChild(ap);
@@ -430,7 +436,7 @@
 
 
 
-        async function import_files(files) {
+        async function import_txt_files(files) {
             day_infos = {};
             appointment_positions = {};
 
@@ -438,7 +444,6 @@
 
             const fileReadPromises = [...files].map((file, index) => {
                 return new Promise((resolve, reject) => {
-                    // Create all appointments
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         try {
@@ -473,7 +478,7 @@
                                     professor = parts1[3].replace(/_/g, ' ').trim() + ", " + parts1[4].replace(/_/g, ' ').trim();
                                     subject = parts1.slice(5).join(" ");
                                 } else {
-                                    professor = parts1[3].replace(/_/g, ' ');
+                                    professor = parts1[3].replace('_', ', ').replace(/_/g, ' ');
                                     subject = parts1.slice(4).join(" ");
                                 }
                                 professor = professor.replace(/\b\w\b/g, match => match + '.');
@@ -612,6 +617,100 @@
             return [start_row, row_lenght];
         }
 
+        function show_export_dialog() {
+            const p = document.createElement("p");
+            p.textContent = "Beim Exportieren werden .hahlviewer-Dateien erzeugt. Diese beinhalten alle aktuell importierten Daten. Somit können alle Stundenpläne mit einem Mal übertragen werden. Außerdem ermöglichen .hahlviewer-Dateien eine Bearbeitung der Daten."
+            const button = document.createElement("button");
+            button.textContent = "Daten Exportieren";
+            button.className = "overlay_button";
+            button.onclick = () => export_hahlviewer();
+            const div = document.createElement("div");
+            div.appendChild(p);
+            div.appendChild(button);
+            show_dialog("Als .hahlviewer exportieren", div)
+        }
+
+        function export_hahlviewer() {
+            const export_json = {
+                "input_file_infos": input_file_infos,
+                "appointements": appointments
+            }
+            const jsonString = JSON.stringify(export_json, null, 2); // pretty-print mit Einrückung
+
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Export-${(new Date).toISOString()}.hahlviewer`;
+            a.click();
+
+            URL.revokeObjectURL(url); // Aufräumen
+        }
+
+        async function import_json_files(files) {
+            files.forEach(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        try {
+
+
+
+
+
+
+
+
+
+                        } catch (err) {
+                            show_error("05", `HAHLVIEWER-Datei kann nicht ausgelesen werden: ${err}`)
+                            reject(err);
+                            return;
+                        }
+                    }
+                    reader.onerror = reject;
+                    reader.readAsArrayBuffer(file);
+                })
+            });
+
+            await Promise.all(files);
+            create_day_positions();
+            update_calender();
+
+
+
+            // try {
+            //     files.forEach(file => {
+
+            //         const reader = new FileReader();
+
+            //         reader.onload = function (event) {
+            //             const json = JSON.parse(file);
+            //             new_input_file_infos = json["input_file_infos"]
+            //             new_appointments = json["appointments"]
+            //             for (const new_input_file_id of Object.keys(new_input_file_infos)) {
+            //                 if (new_input_file_id in input_file_infos) {
+            //                     delete_input_file(new_input_file_id);
+            //                 }
+            //                 input_file_infos[new_input_file_id] = new_input_file_infos[new_input_file_id];
+            //                 new_appointments.forEach(appointment => {
+            //                     if (appointment.input_file_id === new_input_file_id) {
+            //                         appointments.push(appointment);
+            //                     }
+            //                 })
+            //             }
+            //         }
+            //     })
+
+            //     reader.readAsText(file);
+            //     create_day_positions();
+            //     update_calender();
+            // } catch (err) {
+            //     show_error("05", `HAHLVIEWER-Datei kann nicht ausgelesen werden: ${err}`)
+            // }
+        }
+
 
         function timeToMinutes(t) {
             const [h, m] = t.split(":").map(Number);
@@ -637,10 +736,20 @@
             return Math.abs(a * b) / greatest_common_divisor(a, b);
         }
 
+        function change_color_brightness(hex, factor = 0.5) {
+            let values = [];
+            for (i = 1; i < 6; i += 2) {
+                const value = (parseInt(hex.slice(i, i + 2), 16))
+                values.push(Math.max(0, Math.min(255, Math.floor(value * factor))))
+            }
+            return `#${values.map(x => x.toString(16).padStart(2, "0")).join("")}`;
+        }
+
         function get_grid_columns(array) {
             const out = array.reduce((acc, val) => lowest_common_multiple(acc, val));
             return out;
         }
+
 
         function preventEscClose(e) {
             if (e.key === 'Escape') {
@@ -724,7 +833,7 @@
             const p = document.createElement("p");
             const div = document.createElement("div");
             const button = document.createElement("button");
-            p.textContent = "Hier können Daten aus speziellen TXT-Dateien übersichtlich in einem Kalender dargestellt werden. Dafür die passenden Dateien einfach reinziehen oder auswählen!"
+            p.textContent = "Hier können Daten aus speziellen TXT-Dateien oder übersichtlich in einem Kalender dargestellt werden. Dafür die passenden Dateien einfach reinziehen oder auswählen!"
 
             button.className = "overlay_button";
             button.onclick = () => document.getElementById('fileInput').click();
@@ -815,6 +924,22 @@
             }
         });
 
+        function import_files(files) {
+            console.log(files)
+            const txtFiles = files.filter(file => (file.type === "text/plain" && file.name.endsWith(".txt")));
+            const jsonFiles = files.filter(file => (file.name.endsWith(".hahlviewer")))
+            console.log(jsonFiles)
+            if (txtFiles.length > 0) {
+                import_txt_files(txtFiles);
+            }
+            if (jsonFiles.length > 0) {
+                import_json_files(jsonFiles);
+            }
+            if (txtFiles.length === 0 && jsonFiles.length === 0) {
+                check_for_data()
+            }
+        }
+
         document.getElementById("fileInput").addEventListener("change", (e) => {
             change_week();
             import_files(Array.from(e.target.files));
@@ -848,14 +973,7 @@
             dragCounter = 0;
             dropOverlay.classList.remove('visible');
 
-            const files = Array.from(e.dataTransfer.files);
-            const txtFiles = files.filter(file => file.type === "text/plain" || file.name.endsWith(".txt"));
-
-            if (txtFiles.length > 0) {
-                import_files(txtFiles);
-            } else {
-                check_for_data()
-            }
+            import_files(Array.from(e.dataTransfer.files));
         });
 
         // Swipe Events
