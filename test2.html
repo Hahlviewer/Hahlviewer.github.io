@@ -8,7 +8,7 @@
 
 <html>
 
-toller Text
+<h1>toller Text</h1>
 
 </html>
 
@@ -43,7 +43,7 @@ toller Text
   window.addEventListener("resize", getSizes, false);
 
   function getSizes() {
-    let zoom = ((window.outerWidth - 10)
+    let zoom = (window.outerWidth
       / window.innerWidth) * 100;
 
     alert(zoom);
@@ -69,6 +69,7 @@ toller Text
   }, { passive: false });
 
   window.addEventListener('touchend', (e) => {
+    getSizes();
     // Keine gültige Startposition oder mehr als 1 Finger → abbrechen
     if (!touchStartX || e.changedTouches.length !== 1 || isZoomed()) return;
 
