@@ -6,6 +6,12 @@
   }
 </style>
 
+<html>
+
+toller Text
+
+</html>
+
 <script>
   let touchStartX = 0;
   let touchStartY = 0;
@@ -32,6 +38,15 @@
 
   function handleRightSwipe() {
     alert("Swipe nach rechts");
+  }
+
+  window.addEventListener("resize", getSizes, false);
+
+  function getSizes() {
+    let zoom = ((window.outerWidth - 10)
+      / window.innerWidth) * 100;
+
+    alert(zoom);
   }
 
   window.addEventListener('touchstart', (e) => {
