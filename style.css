@@ -124,7 +124,6 @@ body {
     flex: 1;
     padding: var(--normal_padding) var(--normal_padding);
     background: var(--overlay_bg);
-    /* min-height: 140px; */
     position: relative;
     border: none;
     border-radius: var(--border_radius);
@@ -165,6 +164,7 @@ body {
 
     text-overflow: ellipsis;
     transition: background-color 0.2s ease, transform 0.1s ease;
+    touch-action: manipulation;
 }
 
 .appointment:active {
@@ -280,6 +280,7 @@ button {
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.1s ease;
     min-width: var(--min-button-width);
+    touch-action: manipulation;
 }
 
 
