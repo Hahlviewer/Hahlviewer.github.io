@@ -13,7 +13,18 @@
   const edgeThreshold = 30;
 
   // Prüft, ob gezoomt wurde
-  const isZoomed = () => window.visualViewport && window.visualViewport.scale !== 1;
+  function isZoomed() {
+    const scaleViewport = window.visualViewport?.scale;
+    const zoomedByViewport = scaleViewport && scaleViewport !== 1;
+
+    const layoutWidth = document.documentElement.clientWidth;
+    const visualWidth = window.innerWidth;
+
+    const zoomedBySizeMismatch = Math.abs(visualWidth - layoutWidth) > 1;
+
+    return zoomedByViewport || zoomedBySizeMismatch;
+  }
+
 
   function handleLeftSwipe() {
     alert("Swipe nach links");
