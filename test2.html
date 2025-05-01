@@ -43,8 +43,8 @@
   window.addEventListener("resize", getSizes, false);
 
   function getSizes() {
-    let zoom = (window.outerWidth
-      / window.innerWidth) * 100;
+    let zoom = ((window.outerWidth * 100)
+      / window.innerWidth);
 
     alert(zoom);
   }
