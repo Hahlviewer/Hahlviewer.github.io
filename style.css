@@ -328,6 +328,15 @@ button:active {
     opacity: 0.8;
 }
 
+input[type="text"] {
+    background-color: var(--bg);
+    font-size: var(--normal_font_size);
+    border-radius: var(--border_radius);
+    border: none;
+    height: 2rem;
+    width: 100%;
+}
+
 input[type="file"] {
     display: none;
 }
