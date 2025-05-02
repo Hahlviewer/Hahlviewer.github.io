@@ -16,7 +16,6 @@
                 <button onclick="change_week(-7)">←</button>
                 <button onclick="change_week()">Heute</button>
                 <button onclick="change_week(+7)">→</button>
-                <button onclick="document.getElementById('fileInput').click()">📁 Dateien auswählen</button>
                 <input type="file" id="fileInput" accept=".txt, .hahlviewer" multiple>
             </div>
             <div class="controls2" id="controls2">
@@ -28,7 +27,10 @@
             <h1 class="error"> Aktiviere Javascript, um diese Website verwenden zu können! </h1>
         </div>
         <div class="caption" id="caption"></div>
-        <button onclick="show_export_dialog()">Als .hahlviewer exportieren</button>
+        <div class="caption-point">
+            <button onclick="document.getElementById('fileInput').click()">📁 Weitere Dateien importieren</button>
+            <button onclick="show_export_dialog()">Als .hahlviewer exportieren</button>
+        </div>
 
         <dialog id="dialog" class="text">
             <div class="controls-wrapper">
@@ -167,7 +169,7 @@
                 visible_button.onclick = () => change_visibility(input_file_id);
                 if (input_file_infos[input_file_id].visible) {
                     visible_button.style.backgroundColor = color;
-                    visible_button.className = "lv-fg";
+                    visible_button.classList.add("lv-fg", "colored_button");
                     visible_button.textContent = "👁";
                 } else {
                     const s = document.createElement("s");
@@ -178,7 +180,7 @@
                 const display_name = get_input_file_display_name(input_file_id);
 
                 const button = document.createElement("button");
-                button.className = "lv-fg";
+                button.classList.add("lv-fg", "colored_button");
                 button.style.backgroundColor = color;
 
 
@@ -380,7 +382,7 @@
         function add_appointment_div(appointment) {
             const container = document.getElementById(`container-${appointment.date}`);
             const ap = document.createElement("div");
-            ap.className = "appointment";
+            ap.classList.add("appointment", "colored_button");
             let color = input_file_infos[appointment.input_file_id]["color"]
             if (appointment.info) {
                 ap.classList.add("highlighted")
@@ -635,7 +637,7 @@
                 "input_file_infos": input_file_infos,
                 "appointements": appointments
             }
-            const jsonString = JSON.stringify(export_json, null, 2); // pretty-print mit Einrückung
+            const jsonString = JSON.stringify(export_json, null, 2);
 
             const blob = new Blob([jsonString], { type: "application/json" });
             const url = URL.createObjectURL(blob);
@@ -645,70 +647,47 @@
             a.download = `Export-${(new Date).toISOString()}.hahlviewer`;
             a.click();
 
-            URL.revokeObjectURL(url); // Aufräumen
+            URL.revokeObjectURL(url);
         }
 
         async function import_json_files(files) {
-            files.forEach(file => {
+            const fileReadPromises = [...files].map(file => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         try {
-
-
-
-
-
-
-
-
-
+                            const json = JSON.parse(event.target.result);
+                            new_input_file_infos = json["input_file_infos"]
+                            new_appointments = json["appointements"]
+                            console.log("new_input_file_infos", new_input_file_infos)
+                            console.log("new_appointments", new_appointments)
+                            for (const new_input_file_id of Object.keys(new_input_file_infos)) {
+                                console.log("in forloop", new_input_file_id)
+                                if (new_input_file_id in input_file_infos) {
+                                    delete_input_file(new_input_file_id);
+                                }
+                                input_file_infos[new_input_file_id] = new_input_file_infos[new_input_file_id];
+                                new_appointments.forEach(appointment => {
+                                    if (appointment.input_file_id === new_input_file_id) {
+                                        appointments.push(appointment);
+                                    }
+                                })
+                            }
+                            resolve();
                         } catch (err) {
+                            console.log("ERROR", err)
                             show_error("05", `HAHLVIEWER-Datei kann nicht ausgelesen werden: ${err}`)
                             reject(err);
                             return;
                         }
                     }
                     reader.onerror = reject;
-                    reader.readAsArrayBuffer(file);
+                    reader.readAsText(file);
                 })
             });
-
-            await Promise.all(files);
+            await Promise.all(fileReadPromises);
             create_day_positions();
             update_calender();
-
-
-
-            // try {
-            //     files.forEach(file => {
-
-            //         const reader = new FileReader();
-
-            //         reader.onload = function (event) {
-            //             const json = JSON.parse(file);
-            //             new_input_file_infos = json["input_file_infos"]
-            //             new_appointments = json["appointments"]
-            //             for (const new_input_file_id of Object.keys(new_input_file_infos)) {
-            //                 if (new_input_file_id in input_file_infos) {
-            //                     delete_input_file(new_input_file_id);
-            //                 }
-            //                 input_file_infos[new_input_file_id] = new_input_file_infos[new_input_file_id];
-            //                 new_appointments.forEach(appointment => {
-            //                     if (appointment.input_file_id === new_input_file_id) {
-            //                         appointments.push(appointment);
-            //                     }
-            //                 })
-            //             }
-            //         }
-            //     })
-
-            //     reader.readAsText(file);
-            //     create_day_positions();
-            //     update_calender();
-            // } catch (err) {
-            //     show_error("05", `HAHLVIEWER-Datei kann nicht ausgelesen werden: ${err}`)
-            // }
         }
 
 
@@ -925,10 +904,10 @@
         });
 
         function import_files(files) {
-            console.log(files)
+            // console.log(files)
             const txtFiles = files.filter(file => (file.type === "text/plain" && file.name.endsWith(".txt")));
             const jsonFiles = files.filter(file => (file.name.endsWith(".hahlviewer")))
-            console.log(jsonFiles)
+            // console.log(jsonFiles)
             if (txtFiles.length > 0) {
                 import_txt_files(txtFiles);
             }
