@@ -297,9 +297,13 @@
 
             appointment = export_appointments[0];
             
+            let info = "";
+            if (appointment.info) {
+                info = `Info: ${appointment.info}\n`
+                }
 
             const title = appointment.subject;
-            const description = ``;
+            const description = `${info}Professor: ${appointment.professor}\nTag: ${tag}\nUrsprüngliche Datei: ${input_file_display_name}`;
             const location = appointment.location;
             const startDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[0]);
             const endDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[0]);
