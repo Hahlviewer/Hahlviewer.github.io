@@ -133,7 +133,6 @@ body {
 
 .today {
     background-color: var(--highlighted_bg);
-    font-weight: bold;
 }
 
 .table {
