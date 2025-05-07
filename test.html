@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Hahlviewer</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js"></script>
 </head>
 
 <body>
@@ -27,7 +28,7 @@
             <h1 class="error"> Aktiviere Javascript, um diese Website verwenden zu können! </h1>
         </div>
         <div class="caption" id="caption"></div>
-        <div class="caption-point">
+        <div class="import-export caption-point">
             <button onclick="document.getElementById('fileInput').click()">📁 Weitere Dateien importieren</button>
             <button onclick="show_export_dialog()">Als .hahlviewer exportieren</button>
         </div>
@@ -281,6 +282,7 @@
             button.innerText = "Jetzt generieren und herunterladen";
             button.onclick = () => download_ics_appointements(input_file_id, export_appointments, input_file_display_name, input);
             const div = document.createElement("div");
+            div.className = "dialog_container";
             div.appendChild(p);
             div.appendChild(input);
             div.appendChild(button);
@@ -290,23 +292,44 @@
 
         function download_ics_appointements(input_file_id, export_appointments, input_file_display_name, tag_input) {
             close_dialog();
+
             let tag = tag_input.value;
             if (tag === "") {
                 tag = input_file_display_name;
             }
 
-            appointment = export_appointments[0];
-            
+            const zip = new JSZip();
+            let index = 0;
+            export_appointments.forEach(appointment => {
+                zip.file(`${get_ics_name(appointment, index)}.ics`, generate_ics_content(appointment, tag, input_file_display_name));
+                index++;
+            })
+
+            zip.generateAsync({ type: "blob" }).then(function (blob) {
+                download_blob(blob, `Hahlviewer ICS-Export - ${tag}.zip`);
+            });
+        }
+
+        function get_ics_name(appointment, index) {
+            const date_obj = new Date(appointment.date);
+            const date_str = `${date_obj.getFullYear()}-${String(date_obj.getMonth()+1).padStart(2, '0')}-${String(date_obj.getDate()).padStart(2, '0')}`
+            const time_str = appointment.time_str.replace(/[:]/g, "_");
+            const title = appointment.subject.slice(0, 15);
+            return `${date_str}_${time_str} - ${title}_${index}`;
+        }
+
+        function generate_ics_content(appointment, tag, input_file_display_name) {
             let info = "";
             if (appointment.info) {
-                info = `Info: ${appointment.info}\n`
-                }
+                info = `Info: ${appointment.info}\\n`
+            }
 
             const title = appointment.subject;
-            const description = `${info}Professor: ${appointment.professor}\nTag: ${tag}\nUrsprüngliche Datei: ${input_file_display_name}`;
+            const description = `${info}Professor: ${appointment.professor}\\n\\nTag: ${tag}\\nUrsprüngliche Datei: ${input_file_display_name}`;
+            const htmlDescription = `<html><body style=\"font-family:sans-serif;\">${description.replace(/\\n/g, '<br/>')}</body></html>`;
             const location = appointment.location;
             const startDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[0]);
-            const endDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[0]);
+            const endDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[1]);
 
             function formatDate(date) {
                 return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
@@ -317,19 +340,18 @@ BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Hahlviewer//DE
 BEGIN:VEVENT
-UID:Hahlviewer-${id}
+UID:Hahlviewer-${appointment.id}
 DTSTAMP:${formatDate(new Date())}
 DTSTART:${formatDate(startDate)}
 DTEND:${formatDate(endDate)}
 SUMMARY:${title}
 DESCRIPTION:${description}
+X-ALT-DESC;FMTTYPE=text/html:${htmlDescription}
 LOCATION:${location}
 END:VEVENT
 END:VCALENDAR`.trim();
 
-            const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-
-            download_blob(blob, `test24.ics`)
+            return icsContent;
         }
 
         function get_absolute_date_object(date_str, time_str) {
@@ -739,10 +761,7 @@ END:VCALENDAR`.trim();
                             const json = JSON.parse(event.target.result);
                             new_input_file_infos = json["input_file_infos"]
                             new_appointments = json["appointements"]
-                            console.log("new_input_file_infos", new_input_file_infos)
-                            console.log("new_appointments", new_appointments)
                             for (const new_input_file_id of Object.keys(new_input_file_infos)) {
-                                console.log("in forloop", new_input_file_id)
                                 if (new_input_file_id in input_file_infos) {
                                     delete_input_file(new_input_file_id);
                                 }
@@ -985,10 +1004,8 @@ END:VCALENDAR`.trim();
         });
 
         function import_files(files) {
-            // console.log(files)
             const txtFiles = files.filter(file => (file.type === "text/plain" && file.name.endsWith(".txt")));
             const jsonFiles = files.filter(file => (file.name.endsWith(".hahlviewer")))
-            // console.log(jsonFiles)
             if (txtFiles.length > 0) {
                 import_txt_files(txtFiles);
             }
