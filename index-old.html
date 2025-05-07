@@ -4,294 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Hahlviewer</title>
-    <style>
-        :root {
-            --bg: #fff;
-            --fg: #000;
-            --fg_link: #0045ad;
-            --lv_fg: #fff;
-            --highlighted_fg: #000;
-            --overlay_bg: #d1d1d1;
-            --highlighted_bg: #c3dcff;
-            --highlighted_border: #000;
-            --border: #afafaf;
-            --overlay_button_bg: #a7a7a7;
-            --error: #9c0000;
-        }
-
-        .dark {
-            --bg: #131313;
-            --fg: #cccccc;
-            --fg_link: #4576ff;
-            --lv_fg: #fff;
-            --highlighted_fg: #000;
-            --overlay_bg: #2c2c2c;
-            --highlighted_bg: #30405e;
-            --highlighted_border: #fff;
-            --border: #666;
-            --overlay_button_bg: #3f3f3f;
-            --error: #ff4848;
-        }
-
-        * {
-            --border_radius: 0.5rem;
-            --margin: 0.25rem;
-            --gap: 0.5rem;
-            --small-gap: 0.3rem;
-            --small_font_size: 0.83em;
-            --normal_padding: 0.5rem;
-            --double_padding: 1rem;
-        }
-
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            background-color: var(--bg);
-            font-family: sans-serif;
-        }
-
-        .content {
-            flex: 1;
-            padding: var(--double_padding);
-        }
-
-        .controls-wrapper {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .controls1 {
-            display: flex;
-            align-items: center;
-            gap: var(--gap);
-
-        }
-
-        .controls2 {
-            float: right;
-            display: flex;
-            align-items: center;
-            gap: var(--gap);
-        }
-
-        .timeline {
-            width: 2.5rem;
-            padding: var(--normal_padding) var(--normal_padding);
-            background: var(--overlay_bg);
-            min-height: 10rem;
-            position: relative;
-            border: none;
-            border-radius: var(--border_radius);
-        }
-
-        .time {
-            font-size: var(--small_font_size);
-        }
-
-        .time-border {
-            border-top: 1px solid var(--border);
-        }
-
-        .calender {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            color: var(--fg);
-            gap: var(--gap);
-        }
-
-        .day {
-            flex: 1;
-            padding: var(--normal_padding) var(--normal_padding);
-            background: var(--overlay_bg);
-            min-height: 140px;
-            position: relative;
-            border: none;
-            border-radius: var(--border_radius);
-        }
-
-        .today {
-            background-color: var(--highlighted_bg);
-            font-weight: bold;
-        }
-
-        .table {
-            display: grid;
-            width: 100%;
-        }
-
-        .appointment-container {
-            display: grid;
-            gap: var(--small-gap);
-            margin-top: 6px;
-            width: 100%;
-            grid-template-columns: repeat(1, 1fr);
-            grid-template-rows: repeat(37, 0.5rem);
-            border-top: 1px solid var(--border)
-        }
-
-        .appointment {
-            cursor: pointer;
-            padding: 0.3rem;
-            border-radius: var(--border_radius);
-            font-size: var(--small_font_size);
-            color: var(--lv_fg);
-            font-weight: normal;
-            overflow: hidden;
-            white-space: nowrap;
-            background-color: var(--overlay_bg);
-
-            text-overflow: ellipsis;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
-
-        .appointment:active {
-            transform: scale(0.95);
-        }
-
-        .highlighted {
-            border: 2px solid var(--highlighted_border);
-        }
-
-        .caption {
-            margin-top: 2rem;
-        }
-
-        .caption-point {
-            display: flex;
-            gap: var(--gap);
-            align-items: center;
-            margin-bottom: var(--margin);
-            border-radius: var(--border_radius);
-        }
-
-        .lv-fg {
-            color: var(--lv_fg);
-        }
-
-        .highlighted_text {
-            color: var(--highlighted_fg);
-        }
-
-        .text {
-            color: var(--fg);
-        }
-
-        .error {
-            color: var(--error);
-        }
-
-        .link {
-            color: var(--fg_link);
-        }
-
-        .dialog_container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: var(--gap);
-        }
-
-        ::backdrop {
-            background-color: var(--bg);
-            opacity: 0.8;
-            position: absolute;
-            z-index: 900;
-        }
-
-
-        dialog {
-            background-color: var(--overlay_bg);
-            border-radius: var(--border_radius);
-            border: none;
-            width: 40rem;
-            min-height: 25rem;
-            padding: 1rem 2rem;
-            position: absolute;
-            z-index: 900;
-        }
-
-
-        footer {
-            height: 2rem;
-            width: 100%;
-            background-color: var(--overlay_bg);
-            text-align: center;
-            color: white;
-            line-height: 2rem;
-        }
-
-        button {
-            border: none;
-            color: var(--fg);
-            background-color: var(--overlay_bg);
-            border-radius: 8px;
-            padding: var(--normal_padding) var(--double_padding);
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            min-width: 3.5rem;
-        }
-
-        .overlay_button {
-            background-color: var(--overlay_button_bg);
-            padding: var(--double_padding) var(--double_padding);
-        }
-
-        button:hover {
-            background-color: var(--highlighted_bg);
-        }
-
-        button:active {
-            transform: scale(0.95);
-        }
-
-        #dropOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg);
-            color: var(--fg);
-            font-size: 2em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 1000;
-        }
-
-        #dropOverlay.visible {
-            pointer-events: all;
-            opacity: 0.8;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        #fileInput {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
     <div class="content">
-
-
         <h1 class="text">Vorlesungskalender</h1>
         <div class="controls-wrapper">
             <div class="controls1" id="controls1">
@@ -328,10 +46,20 @@
             onclick="show_troubleshooting()">Fehlerbehebung</a>
     </footer>
 
+
+
+
+
     <script>
         // Global variables:
+        let touchStartX = null;
+        let touchStartY = null;
+        let touchStartTarget = null;
+        const minSwipePercent = 0.1;
+        const edgeThreshold = 30;
+        const initial_screen_width = window.innerWidth;
+
         const beginning_time = 8 * 60;
-        const letter_count_per_row = 64;
         const browserLanguage = navigator.language || navigator.userLanguage;
         const colors = ["#1976D2", "#388E3C", "#F57C00", "#7B1FA2", "#D32F2F", "#5D4037", "#0097A7"];
 
@@ -376,8 +104,30 @@
 
 
 
+        // Set CSS variables
+        function isMobileUser() {
+            const toMatch = [
+                /Android/i,
+                /webOS/i,
+                /iPhone/i,
+                /iPad/i,
+                /iPod/i,
+                /BlackBerry/i,
+                /Windows Phone/i
+            ];
 
-        // Functions:
+            return toMatch.some((toMatchItem) => {
+                return navigator.userAgent.match(toMatchItem);
+            });
+        }
+
+        function setScreenVariables() {
+            const mobile_user = isMobileUser();
+            const small_screen = (initial_screen_width < 768);
+
+            document.documentElement.classList.toggle('mobile-user', small_screen || mobile_user);
+        }
+
         function setThemeClass(theme) {
             document.documentElement.classList.toggle('dark', theme === 'dark');
         }
@@ -399,6 +149,9 @@
             setThemeClass(next);
             localStorage.setItem('theme', next);
         }
+
+
+
 
         function create_caption() {
             const caption = document.getElementById("caption")
@@ -462,14 +215,12 @@
             const infos = [
                 { name: "Dateiname:", content: input_file_infos[input_file_id].input_file_name },
                 { name: "Importdatum:", content: new Date(input_file_infos[input_file_id].import_date).toLocaleDateString() },
-                { name: "Farbe:", content: `${input_file_infos[input_file_id].color} ➞ <span style="background-color: ${input_file_infos[input_file_id].color}">     </span>` },
+                { name: "Farbe ändern:", content: `<input type="color" style="border-color: '${input_file_infos[input_file_id].color}'" value="${input_file_infos[input_file_id].color}" oninput="change_color(this, '${input_file_id}')">` }
             ]
 
             div.appendChild(get_table_div(infos));
 
-
             const buttons = [
-                { text: "Farbe ändern", function: () => change_color(input_file_id) },
                 { text: "ICS-/Kalender-Dateien herunterladen", function: () => download_ics_appointements(input_file_id) },
                 { text: "Löschen", function: () => delete_input_file(input_file_id) },
             ]
@@ -484,19 +235,12 @@
             show_dialog(display_name, div);
         }
 
-        function change_color(input_file_id) {
-            const colorInput = document.createElement('input');
-            colorInput.type = 'color';
-            colorInput.style.display = 'none';
-
-            document.body.appendChild(colorInput);
-
-            colorInput.click();
-            colorInput.addEventListener('input', () => {
-                input_file_infos[input_file_id].color = colorInput.value;
-                update_calender();
-            });
+        function change_color(color_picker, input_file_id) {
+            console.log(input_file_id)
+            input_file_infos[input_file_id].color = color_picker.value;
+            update_calender();
         }
+
 
         function delete_input_file(input_file_id) {
             delete input_file_infos[input_file_id];
@@ -525,14 +269,15 @@
 
         function get_monday(date = new Date()) {
             const day = date.getDay();
-            const diff = date.getDate() - (day === 0 ? 6 : day - 1);
+            const diff_to_last_monday = day === 0 ? 6 : day - 1
+            const diff = date.getDate() - (diff_to_last_monday >= 5 ? diff_to_last_monday - 7 : diff_to_last_monday);
             return new Date(date.setDate(diff));
         }
 
         function get_timeline() {
             const div = document.createElement("div");
             div.className = "timeline";
-            div.innerHTML = `<br/><br/>`
+            div.innerHTML = `<br/><br/>`;
             const grid = document.createElement("div");
             grid.className = "appointment-container";
             for (i = 0; i < 10; i++) {
@@ -568,7 +313,6 @@
                     div.classList.add("today");
                 }
                 div.innerHTML = `<strong>${weekday}</strong><br/>${date.toLocaleDateString()}<div class="appointment-container" id="container-${id}"></div>`;
-
                 calender_object.appendChild(div);
             }
         }
@@ -613,8 +357,8 @@
                 }
             });
             if (ap === null) {
-                show_error("001","Termin existiert nicht")
-                return; 
+                show_error("001", "Termin existiert nicht")
+                return;
             }
 
             let text = "";
@@ -644,18 +388,14 @@
             ap.style.backgroundColor = input_file_infos[appointment.input_file_id]["color"];
             ap.style.gridColumn = `${appointment_positions[appointment.id]["start_column"]} / span ${appointment_positions[appointment.id]["column_lenght"]}`;
             ap.style.gridRow = `${appointment_positions[appointment.id]["start_row"] + 1} / span ${appointment_positions[appointment.id]["row_lenght"]}`;
-            // const letter_limit = Math.floor((letter_count_per_row)*(appointment_positions[appointment.id]["column_lenght"]/appointment_positions[appointment.id]["column_count"]));
             let subject = appointment.subject;
-            // if (letter_limit < appointment.subject.length) {
-            //     subject = subject.slice(0, letter_limit) + "..."
-            // }
             ap.innerHTML = `
-              <span class="highlighted_text">${appointment.info}</span>
-              <strong>${subject}</strong><br>
-              ${appointment.time_str}<br>
-              ${appointment.professor}<br>
-              <em>${appointment.location}</em>
-            `;
+      <span class="highlighted_text">${appointment.info}</span>
+      <strong>${subject}</strong><br>
+      ${appointment.time_str}<br>
+      ${appointment.professor}<br>
+      <em>${appointment.location}</em>
+    `;
             ap.onclick = () => click_on_appointment(appointment.id);
             container.appendChild(ap);
         }
@@ -766,7 +506,7 @@
                             resolve();
                         } catch (err) {
                             show_error("002", `TXT-Datei kann nicht ausgelesen werden: Fehler beim Auslesen der Einträge: ${err}`);
-                            reject(err); 
+                            reject(err);
                             return;
                         }
                     }
@@ -916,7 +656,7 @@
             const dialog = document.getElementById("dialog");
             const dialog_button = document.getElementById("dialog-button");
             if (is_closerable) {
-                dialog_button.textContent = "🗙";
+                dialog_button.textContent = "✕";
                 dialog_button.onclick = () => close_dialog();
                 dialog.removeEventListener('keydown', preventEscClose);
             } else {
@@ -927,10 +667,13 @@
             dialog.showModal();
         }
 
-        function close_dialog() {
+        function close_dialog(check = true) {
             const dialog = document.getElementById("dialog");
             const old_state = dialog.open;
             dialog.close();
+            if (check) {
+                check_for_data();
+            }
             return old_state;
         }
 
@@ -1065,7 +808,12 @@
             update_calender();
         }
 
-
+        document.getElementById('dialog').addEventListener('click', function (event) {
+            // Wenn der Klick auf den Backdrop (also außerhalb des Dialoginhalts) war, schließt der Dialog
+            if (event.target === document.getElementById('dialog')) {
+                close_dialog();
+            }
+        });
 
         document.getElementById("fileInput").addEventListener("change", (e) => {
             change_week();
@@ -1076,7 +824,7 @@
         window.addEventListener('dragenter', (e) => {
             e.preventDefault();
             dragCounter++;
-            if (close_dialog()) dragCounter--;
+            if (close_dialog(false)) dragCounter--;
             dropOverlay.classList.add('visible');
         });
 
@@ -1105,11 +853,75 @@
 
             if (txtFiles.length > 0) {
                 import_files(txtFiles);
+            } else {
+                check_for_data()
             }
+        });
+
+        // Swipe Events
+        function is_iphone_user() {
+            return /iPhone/i.test(navigator.userAgent);
+        }
+
+        function isZoomed() {
+            if (is_iphone_user()) {
+                return ((initial_screen_width * 100) / window.innerWidth) > 100;
+            } else {
+                return window.visualViewport && window.visualViewport.scale !== 1;
+            }
+        }
+
+        function isInteractive(el) {
+            return el.closest('button, a, input, textarea, select, [role="button"], [onclick]');
+        }
+
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1 || isZoomed()) {
+                touchStartX = null;
+                return;
+            }
+
+            const touch = e.touches[0];
+            const fromEdge = touch.clientX < edgeThreshold || touch.clientX > window.innerWidth - edgeThreshold;
+
+            if (fromEdge) {
+                e.preventDefault();
+            }
+
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchStartTarget = e.target;
+        }, { passive: false });
+
+
+        window.addEventListener('touchend', (e) => {
+            if (!touchStartX || e.changedTouches.length !== 1 || isZoomed()) return;
+            if (isInteractive(touchStartTarget) || isInteractive(e.target)) return;
+            if (document.getElementById("dialog").open) return;
+
+            const touch = e.changedTouches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                const swipeDistance = Math.abs(deltaX);
+                const minSwipe = window.innerWidth * minSwipePercent;
+
+                if (swipeDistance >= minSwipe) {
+                    if (deltaX > 0) {
+                        change_week(-7);
+                    } else {
+                        change_week(+7);
+                    }
+                }
+            }
+            touchStartX = null;
+            touchStartY = null;
         });
 
         // Run while loading the website:
         setThemeClass(getPreferredTheme());
+        setScreenVariables();
         if (load_from_local_storage()) {
             update_calender();
         } else {
