@@ -15,7 +15,7 @@
         <div class="controls-wrapper">
             <div class="controls1" id="controls1">
                 <button onclick="change_week(-7)">←</button>
-                <button id="heute" onclick="change_week()">Heute</button>
+                <button id="today" onclick="change_week()" disabled>Heute</button>
                 <button onclick="change_week(+7)">→</button>
                 <input type="file" id="fileInput" accept=".txt, .hahlviewer" multiple>
             </div>
@@ -992,7 +992,7 @@ END:VCALENDAR`.trim();
             } else {
                 current_monday.setDate(current_monday.getDate() + value);
             }
-            document.getElementById('heute').disabled = current_monday === get_monday();
+            document.getElementById('today').disabled = current_monday.toDateString() === get_monday().toDateString();
             update_calender();
         }
 
@@ -1014,11 +1014,12 @@ END:VCALENDAR`.trim();
             }
             if (txtFiles.length === 0 && jsonFiles.length === 0) {
                 check_for_data()
+            } else {
+                change_week();
             }
         }
 
         document.getElementById("fileInput").addEventListener("change", (e) => {
-            change_week();
             import_files(Array.from(e.target.files));
         });
 

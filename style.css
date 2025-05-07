@@ -9,6 +9,8 @@
     --highlighted_border: #000;
     --border: #afafaf;
     --overlay_button_bg: #a7a7a7;
+    --disabled_fg: #a7a7a7;
+    --disabled_bg: #EEEEEE;
     --error: #9c0000;
 
     --border_radius: 0.5rem;
@@ -34,6 +36,8 @@
     --highlighted_border: #fff;
     --border: #666;
     --overlay_button_bg: #3f3f3f;
+    --disabled_fg: #3f3f3f;
+    --disabled_bg: #1C1C1C;
     --error: #ff4848;
 }
 
@@ -281,13 +285,19 @@ button {
     touch-action: manipulation;
 }
 
+button:disabled {
+    color: var(--disabled_fg);
+    background-color: var(--disabled_bg);
+    cursor: default;
+}
+
 
 .overlay_button {
     background-color: var(--overlay_button_bg);
     padding: var(--double_padding) var(--double_padding);
 }
 
-html:not(.mobile-user) button:hover {
+html:not(.mobile-user) button:not(:disabled):hover {
     background-color: var(--highlighted_bg);
 }
 
@@ -300,7 +310,7 @@ html:not(.mobile-user) .colored_button:hover {
 }
 
 
-button:active {
+button:not(:disabled):active {
     transform: scale(0.95);
 }
 
