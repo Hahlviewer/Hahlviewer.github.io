@@ -200,8 +200,12 @@ body {
     color: var(--fg);
 }
 
-.error {
+.error-title {
     color: var(--error);
+}
+
+.error-text {
+    white-space: pre-line;
 }
 
 .link {
