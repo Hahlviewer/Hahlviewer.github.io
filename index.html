@@ -637,6 +637,7 @@ END:VCALENDAR`.trim();
                         }
                         resolve(true);
                     } catch (err) {
+                        resolve(["002", `TXT-Datei '${file.name}' kann nicht ausgelesen werden:`, `Fehler beim Auslesen der Einträge: ${err}`]);
                         return;
                     }
                 }
@@ -690,7 +691,7 @@ END:VCALENDAR`.trim();
                 }
             }
             const min_value = Math.min(...color_count);
-            for (index = 0; index < color_count.length; index++) {
+            for (let index = 0; index < color_count.length; index++) {
                 if (color_count[index] === min_value) {
                     return colors[index];
                 }
