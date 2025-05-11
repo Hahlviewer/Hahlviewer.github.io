@@ -308,13 +308,7 @@
 
         function download_ics_appointements(input_file_id, export_appointments, input_file_display_name, tag_input, export_as_zip) {
             close_dialog();
-            if (!isTypeUser(/iPhone|iPad|iPod/)) {
-                const p = document.createElement("p");
-                p.innerHTML = `Um ics-Dateien in Kalender importieren zu können, kann folgender Kurzbefehl hilfreich sein: <a class="link" href="https://www.icloud.com/shortcuts/76e984f27b194fbf9c81044bf8bd0109" target="_blank">ICS to Calendar</a><br/>
-                Wenn dieser installiert ist, kann bei Klick auf das Teilen-Symbol "ICS To Calender" ausgewählt werden, wodurch die Daten importiert werden können.`
-                show_dialog("Import in Kalender auf Apple-Geräten", p)
-            }
-
+            
             let tag = tag_input.value;
             if (tag === "") {
                 tag = input_file_display_name;
