@@ -284,20 +284,25 @@
             input.autofocus = true;
             input.maxlength = 100;
             input.placeholder = input_file_display_name;
-            const button = document.createElement("button");
-            button.className = "overlay_button";
-            button.innerText = "Jetzt generieren und herunterladen";
-            button.onclick = () => download_ics_appointements(input_file_id, export_appointments, input_file_display_name, input);
+
             const div = document.createElement("div");
             div.className = "dialog_container";
             div.appendChild(p);
             div.appendChild(input);
-            div.appendChild(button);
 
+            const buttons = ["Als große ICS-Datei herunterladen (empfohlen)", "Als ZIP-Archiv herunterladen"]
+            for (let index = 0; index < buttons.length; index++) {
+                const button = document.createElement("button");
+                button.className = "overlay_button";
+                button.innerText = buttons[index];
+                button.onclick = () => download_ics_appointements(input_file_id, export_appointments, input_file_display_name, input, Boolean(index));
+                div.appendChild(button);
+            }
             show_dialog("ICS-/Kalender-Dateien erstellen", div)
         }
 
         function download_ics_appointements(input_file_id, export_appointments, input_file_display_name, tag_input) {
+        function download_ics_appointements(input_file_id, export_appointments, input_file_display_name, tag_input, export_as_zip) {
             close_dialog();
 
             let tag = tag_input.value;
@@ -305,16 +310,23 @@
                 tag = input_file_display_name;
             }
 
-            const zip = new JSZip();
-            let index = 0;
-            export_appointments.forEach(appointment => {
-                zip.file(`${get_ics_name(appointment, index)}.ics`, generate_ics_content(appointment, tag, input_file_display_name));
-                index++;
-            })
+            if (export_as_zip) {
+                const zip = new JSZip();
+                let index = 0;
+                export_appointments.forEach(appointment => {
+                    zip.file(`${get_ics_name(appointment, index)}.ics`, generate_ics_content([appointment], tag, input_file_display_name));
+                    index++;
+                })
 
-            zip.generateAsync({ type: "blob" }).then(function (blob) {
-                download_blob(blob, `Hahlviewer ICS-Export - ${tag}.zip`);
-            });
+                zip.generateAsync({ type: "blob" }).then(function (blob) {
+                    download_blob(blob, `Hahlviewer ICS-Export - ${tag}.zip`);
+                });
+            } else {
+                ics_file = generate_ics_content(export_appointments, tag, input_file_display_name)
+                const blob = new Blob([ics_file], { type: "text/calendar;charset=utf-8" });
+                download_blob(blob, `Hahlviewer ICS Export - ${tag}.ics`);
+            }
+
         }
 
         function get_ics_name(appointment, index) {
@@ -325,40 +337,46 @@
             return `${date_str}_${time_str} - ${title}_${index}`;
         }
 
-        function generate_ics_content(appointment, tag, input_file_display_name) {
+        function generate_ics_content(ics_appointments, tag, input_file_display_name) {
             let info = "";
-            if (appointment.info) {
-                info = `Info: ${appointment.info}\\n`
+            if (ics_appointments.info) {
+                info = `Info: ${ics_appointments.info}\\n`
             }
 
-            const title = appointment.subject;
-            const description = `${info}Professor: ${appointment.professor}\\n\\nTag: ${tag}\\nUrsprüngliche Datei: ${input_file_display_name}`;
-            const htmlDescription = `<html><body style=\"font-family:sans-serif;\">${description.replace(/\\n/g, '<br/>')}</body></html>`;
-            const location = appointment.location;
-            const startDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[0]);
-            const endDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[1]);
+            let events = ""
 
-            function formatDate(date) {
-                return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-            }
+            ics_appointments.forEach(appointment => {
+                const description = `${info}Professor: ${appointment.professor}\\n\\nTag: ${tag}\\nUrsprüngliche Datei: ${input_file_display_name}`;
+                const htmlDescription = `<html><body style=\"font-family:sans-serif;\">${description.replace(/\\n/g, '<br/>')}</body></html>`;
+                const startDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[0]);
+                const endDate = get_absolute_date_object(appointment.date, appointment.time_str.split("-")[1]);
 
-            const icsContent = `
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Hahlviewer//DE
+                events += `
 BEGIN:VEVENT
 UID:Hahlviewer-${appointment.id}
 DTSTAMP:${formatDate(new Date())}
 DTSTART:${formatDate(startDate)}
 DTEND:${formatDate(endDate)}
-SUMMARY:${title}
+SUMMARY:${appointment.subject}
 DESCRIPTION:${description}
 X-ALT-DESC;FMTTYPE=text/html:${htmlDescription}
-LOCATION:${location}
+LOCATION:${appointment.location}
 END:VEVENT
+`
+            });
+
+            const icsContent = `
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Hahlviewer//DE
+${events}
 END:VCALENDAR`.trim();
 
             return icsContent;
+        }
+        
+        function formatDate(date) {
+            return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
         }
 
         function get_absolute_date_object(date_str, time_str) {
@@ -620,7 +638,6 @@ END:VCALENDAR`.trim();
                         }
                         resolve(true);
                     } catch (err) {
-                        resolve(["002", `TXT-Datei '${file.name}' kann nicht ausgelesen werden:`,`Fehler beim Auslesen der Einträge: ${err}`]);
                         return;
                     }
                 }
