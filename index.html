@@ -301,7 +301,6 @@
             show_dialog("ICS-/Kalender-Dateien erstellen", div)
         }
 
-        function download_ics_appointements(input_file_id, export_appointments, input_file_display_name, tag_input) {
         function download_ics_appointements(input_file_id, export_appointments, input_file_display_name, tag_input, export_as_zip) {
             close_dialog();
 
@@ -847,7 +846,7 @@ END:VCALENDAR`.trim();
 
         async function import_json_files(files) {
             let errors = [];
-            for (index = 0; index < files.length; index++) {
+            for (let index = 0; index < files.length; index++) {
                 const success = await read_json_file(files[index]);
                 if (Array.isArray(success)) {
                     errors.push(success)
