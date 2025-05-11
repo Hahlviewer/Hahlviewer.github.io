@@ -1056,7 +1056,7 @@ END:VCALENDAR`.trim();
 
         async function import_files(files) {
             const txtFiles = files.filter(file => (file.type === "text/plain" && file.name.endsWith(".txt")));
-            const jsonFiles = files.filter(file => (file.name.endsWith(".hahlviewer")))
+            const jsonFiles = files.filter(file => (file.name.endsWith(".hahlviewer") || file.name.endsWith(".json") || file.name.endsWith(".bin") || file.type === "application/json"))
             let errors = [];
             if (txtFiles.length > 0) {
                 errors.push(...await import_txt_files(txtFiles));
