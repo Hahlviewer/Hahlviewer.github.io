@@ -132,6 +132,11 @@
             });
         }
 
+        function isTypeUser(pattern) {
+            const regex = typeof pattern === 'string' ? new RegExp(pattern, 'i') : pattern;
+            return regex.test(navigator.userAgent);
+        }
+
         function setScreenVariables() {
             const mobile_user = isMobileUser();
             const small_screen = (initial_screen_width < 768);
@@ -303,6 +308,12 @@
 
         function download_ics_appointements(input_file_id, export_appointments, input_file_display_name, tag_input, export_as_zip) {
             close_dialog();
+            if (!isTypeUser(/iPhone|iPad|iPod/)) {
+                const p = document.createElement("p");
+                p.innerHTML = `Um ics-Dateien in Kalender importieren zu können, kann folgender Kurzbefehl hilfreich sein: <a class="link" href="https://www.icloud.com/shortcuts/76e984f27b194fbf9c81044bf8bd0109" target="_blank">ICS to Calendar</a><br/>
+                Wenn dieser installiert ist, kann bei Klick auf das Teilen-Symbol "ICS To Calender" ausgewählt werden, wodurch die Daten importiert werden können.`
+                show_dialog("Import in Kalender auf Apple-Geräten", p)
+            }
 
             let tag = tag_input.value;
             if (tag === "") {
@@ -373,7 +384,7 @@ END:VCALENDAR`.trim();
 
             return icsContent;
         }
-        
+
         function formatDate(date) {
             return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
         }
@@ -1137,13 +1148,8 @@ END:VCALENDAR`.trim();
             import_files(Array.from(e.dataTransfer.files));
         });
 
-        // Swipe Events
-        function is_iphone_user() {
-            return /iPhone/i.test(navigator.userAgent);
-        }
-
         function isZoomed() {
-            if (is_iphone_user()) {
+            if (isTypeUser(/iPhone/)) {
                 return ((initial_screen_width * 100) / window.innerWidth) > 100;
             } else {
                 return window.visualViewport && window.visualViewport.scale !== 1;
